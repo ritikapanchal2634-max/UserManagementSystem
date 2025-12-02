@@ -1,4 +1,4 @@
-namespace UserManagementSystem.Models
+namespace UserManagementSystem.Models.ViewModels
 {
     public class ErrorViewModel
     {

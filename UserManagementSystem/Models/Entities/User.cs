@@ -1,18 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
-namespace UserManagementSystem.Models
+namespace UserManagementSystem.Models.Entities
 {
+    [Index(nameof(UserName), IsUnique = true)]
     public class User
     {
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        [StringLength(100)]
+        [Required, StringLength(100)]
         public string Name { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required, StringLength(50)]
         public string UserName { get; set; }
 
         [Required]
@@ -21,11 +22,10 @@ namespace UserManagementSystem.Models
         [Required]
         public DateTime DateOfBirth { get; set; }
 
-        [Required]
-        [StringLength(10)]
+        [Required, StringLength(10)]
         public string Gender { get; set; }
 
-        public string Hobbies { get; set; } // Stored as comma-separated values
+        public string Hobbies { get; set; }
 
         [StringLength(500)]
         public string Address { get; set; }
@@ -36,21 +36,24 @@ namespace UserManagementSystem.Models
         [Required]
         public int CityId { get; set; }
 
-        [Required]
-        [StringLength(10)]
+        [Required, StringLength(10)]
         public string Pincode { get; set; }
 
-        [Required]
-        [StringLength(20)]
-        public string Role { get; set; } // Admin, User
+        [Required, StringLength(20)]
+        public string Role { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
+
         public bool IsActive { get; set; }
 
-        // Navigation properties
+        // Navigation
+        [ForeignKey(nameof(StateId))]
         public virtual State State { get; set; }
+
+        [ForeignKey(nameof(CityId))]
         public virtual City City { get; set; }
+
         public virtual ICollection<UserDocument> Documents { get; set; }
     }
 }
