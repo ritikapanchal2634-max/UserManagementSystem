@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserManagementSystem.IServices;
 using UserManagementSystem.Models.ViewModels;
 using UserManagementSystem.Services;
 
@@ -29,42 +30,43 @@ namespace UserManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            ViewBag.States = await _userService.GetStatesAsync();
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Server-side validation for Date of Birth
+            if (model.DateOfBirth >= DateTime.Now.Date)
             {
-                // Server-side validation for date of birth
-                if (model.DateOfBirth >= DateTime.Now.Date)
-                {
-                    ModelState.AddModelError("DateOfBirth", "Date of birth cannot be today or in the future");
-                    ViewBag.States = await _userService.GetStatesAsync();
-                    return View(model);
-                }
-
-                // Check if username already exists
-                if (await _userService.UserExistsAsync(model.UserName))
-                {
-                    ModelState.AddModelError("UserName", "Username already exists");
-                    ViewBag.States = await _userService.GetStatesAsync();
-                    return View(model);
-                }
-
-                // Upload files
-                var (success, filePaths, errorMessage) = await _fileUploadService.UploadFilesAsync(model.Documents);
-                if (!success)
-                {
-                    ModelState.AddModelError("Documents", errorMessage);
-                    ViewBag.States = await _userService.GetStatesAsync();
-                    return View(model);
-                }
-
-                // Register user
-                var user = await _userService.RegisterAsync(model, filePaths);
-
-                TempData["SuccessMessage"] = "Registration successful! Please login.";
-                return RedirectToAction("Login");
+                ModelState.AddModelError("DateOfBirth", "Date of birth cannot be today or in the future");
+                return View(model);
             }
 
-            ViewBag.States = await _userService.GetStatesAsync();
-            return View(model);
+            if (await _userService.UserExistsAsync(model.UserName))
+            {
+                ModelState.AddModelError("UserName", "Username already exists");
+                return View(model);
+            }
+
+            if (model.Password != model.ConfirmPassword)
+            {
+                ModelState.AddModelError("ConfirmPassword", "Passwords do not match");
+                return View(model);
+            }
+
+            // Upload documents
+            var (success, filePaths, errorMessage) = await _fileUploadService.UploadFilesAsync(model.Documents);
+            if (!success)
+            {
+                ModelState.AddModelError("Documents", errorMessage);
+                return View(model);
+            }
+
+            // Register user (password will be hashed inside UserService.RegisterAsync)
+            var user = await _userService.RegisterAsync(model, filePaths);
+
+            TempData["SuccessMessage"] = "Registration successful! Please login.";
+            return RedirectToAction("Login");
         }
 
         [HttpGet]
@@ -112,7 +114,7 @@ namespace UserManagementSystem.Controllers
                 HttpContext.Session.SetString("Role", user.Role);
 
                 TempData["SuccessMessage"] = $"Welcome back, {user.Name}!";
-                return RedirectToAction("Index", "User");
+                return RedirectToAction("Login", "Account");
             }
 
             return View(model);

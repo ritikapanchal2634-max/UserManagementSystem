@@ -1,14 +1,9 @@
-﻿namespace UserManagementSystem.Services
+﻿using UserManagementSystem.IServices;
+
+namespace UserManagementSystem.Services
 {
-    public interface IFileUploadService
-    {
-        Task<(bool Success, List<string> FilePaths, string ErrorMessage)> UploadFilesAsync(List<IFormFile> files);
-        bool DeleteFile(string filePath);
-        (bool IsValid, string ErrorMessage) ValidateFile(IFormFile file);
-    }
     public class FileUploadService: IFileUploadService
     {
-
         private readonly IConfiguration _configuration;
         private readonly List<string> _allowedExtensions;
         private readonly long _maxFileSizeInBytes;

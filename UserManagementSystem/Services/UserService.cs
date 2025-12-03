@@ -1,23 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UserManagementSystem.Data;
+using UserManagementSystem.IServices;
 using UserManagementSystem.Models.Entities;
 using UserManagementSystem.Models.ViewModels;
 using static UserManagementSystem.Services.UserService;
 
 namespace UserManagementSystem.Services
 {
-    public interface IUserService
-    {
-        Task<User> RegisterAsync(RegisterViewModel model, List<string> documentPaths);
-        Task<User> AuthenticateAsync(string username, string password);
-        Task<bool> UserExistsAsync(string username);
-        Task<PaginatedUserListViewModel> GetUsersAsync(int page, int pageSize, string sortBy, string sortOrder, string searchTerm);
-        Task<User> GetUserByIdAsync(int id);
-        Task<bool> UpdateUserAsync(EditUserViewModel model, List<string> newDocumentPaths);
-        Task<bool> DeleteUserAsync(int id);
-        Task<List<State>> GetStatesAsync();
-        Task<List<City>> GetCitiesByStateAsync(int stateId);
-    }
     public class UserService : IUserService
     {
         private readonly ApplicationDbContext _context;
@@ -86,6 +75,8 @@ namespace UserManagementSystem.Services
             if (user == null)
                 return null;
 
+            var hash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
+
             if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
                 return null;
 
@@ -128,6 +119,7 @@ namespace UserManagementSystem.Services
             var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
 
             var users = await query
+
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(u => new UserListViewModel

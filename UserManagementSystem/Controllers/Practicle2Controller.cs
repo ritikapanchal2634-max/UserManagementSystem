@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace UserManagementSystem.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class Practicle2Controller : Controller
     {
         [HttpGet]
@@ -24,7 +26,7 @@ namespace UserManagementSystem.Controllers
             {
                 return new List<object>();
             }
-    
+
             var result = new List<object>();
 
             for (int i = 1; i <= limit; i++)

@@ -2,15 +2,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using UserManagementSystem.IServices;
 using UserManagementSystem.Models.Entities;
 
 namespace UserManagementSystem.Services
 {
-    public interface IJwtService
-    {
-        string GenerateToken(User user);
-        ClaimsPrincipal ValidateToken(string token);
-    }
     public class JwtService: IJwtService
     {
         private readonly IConfiguration _configuration;

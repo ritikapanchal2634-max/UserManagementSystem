@@ -1,80 +1,77 @@
 ﻿@using UserManagementSystem.Models.ViewModels
 @model LoginViewModel
+
 @{
     ViewData["Title"] = "Login";
     Layout = "~/Views/Shared/_AuthLayout.cshtml";
 }
 
-<div class="auth-header">
-    <h2>Welcome Back!</h2>
-    <p>Please login to your account to continue</p>
-</div>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle me-2"></i>
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="auth-form-container mx-auto" style="max-width: 400px; padding: 40px 20px;">
+    <div class="auth-header text-center mb-4">
+        <h2 class="text-primary">Login</h2>
+        <p>Please login to your account to continue</p>
     </div>
-}
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-circle me-2"></i>
-        @TempData["ErrorMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-
-<form asp-action="Login" asp-controller="Account" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-    <div class="form-group">
-        <label asp-for="UserName" class="form-label">
-            <i class="bi bi-person me-2"></i>Username
-        </label>
-        <div class="input-group">
-            <input asp-for="UserName" class="form-control with-icon" placeholder="Enter your username" />
-            <span class="input-icon">
-                <i class="bi bi-person"></i>
-            </span>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        <span asp-validation-for="UserName" class="text-danger small"></span>
-    </div>
+    }
 
-    <div class="form-group">
-        <label asp-for="Password" class="form-label">
-            <i class="bi bi-lock me-2"></i>Password
-        </label>
-        <div class="input-group">
-            <input asp-for="Password" type="password" class="form-control with-icon" id="passwordInput" placeholder="Enter your password" />
-            <span class="password-toggle" onclick="togglePassword()">
-                <i class="bi bi-eye" id="toggleIcon"></i>
-            </span>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        <span asp-validation-for="Password" class="text-danger small"></span>
-    </div>
+    }
 
-    <div class="form-group">
-        <div class="form-check">
+    <form asp-action="Login" asp-controller="Account" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <!-- Username -->
+        <div class="form-group mb-3">
+            <label asp-for="UserName" class="form-label">
+                <i class="bi bi-person me-2"></i>Username
+            </label>
+            <input asp-for="UserName" class="form-control" placeholder="Enter your username" />
+            <span asp-validation-for="UserName" class="text-danger small"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group mb-3">
+            <label asp-for="Password" class="form-label">
+                <i class="bi bi-lock me-2"></i>Password
+            </label>
+            <div class="input-group">
+                <input asp-for="Password" type="password" class="form-control" id="passwordInput" placeholder="Enter your password" />
+                <span class="input-group-text" onclick="togglePassword()" style="cursor:pointer;">
+                    <i class="bi bi-eye" id="toggleIcon"></i>
+                </span>
+            </div>
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <!-- Remember Me -->
+        <div class="form-check mb-3">
             <input asp-for="RememberMe" type="checkbox" class="form-check-input" id="rememberMe" />
             <label asp-for="RememberMe" class="form-check-label" for="rememberMe">
                 Keep me logged in
             </label>
         </div>
-    </div>
 
-    <div class="form-group">
         <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-box-arrow-in-right me-2"></i>Login to Account
         </button>
-    </div>
-</form>
+    </form>
 
-<div class="auth-footer">
-    <p>Don't have an account? <a asp-action="Register" asp-controller="Account">Create one now</a></p>
+    <div class="auth-footer text-center mt-3">
+        <p>Don't have an account? <a asp-action="Register" asp-controller="Account">Create one now</a></p>
+    </div>
 </div>
 
 @section Scripts {

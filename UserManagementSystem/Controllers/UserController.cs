@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserManagementSystem.Data;
+using UserManagementSystem.IServices;
 using UserManagementSystem.Models.ViewModels;
 using UserManagementSystem.Services;
 
 namespace UserManagementSystem.Controllers
 {
-    [Authorize]
     public class UserController : Controller
     {
         private readonly IUserService _userService;
@@ -21,8 +21,7 @@ namespace UserManagementSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string sortBy = "CreatedDate",
-            string sortOrder = "desc", string searchTerm = "")
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string sortBy = "CreatedDate",string sortOrder = "desc", string searchTerm = "")
         {
             var result = await _userService.GetUsersAsync(page, pageSize, sortBy, sortOrder, searchTerm);
             return View(result);

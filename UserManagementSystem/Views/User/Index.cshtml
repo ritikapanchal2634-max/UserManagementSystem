@@ -4,6 +4,7 @@
     ViewData["Title"] = "User List";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var currentUserRole = Context.Session.GetString("Role");
+    var currentUserName = Context.Session.GetString("UserName");
 }
 
 <div class="container mt-4">
@@ -133,7 +134,7 @@
                                         <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning me-1" title="Edit">
                                             <i class="bi bi-pencil"></i> Edit
                                         </a>
-                                        @if (currentUserRole == "Admin")
+                                        @if (currentUserRole == "Admin" && user.UserName != currentUserName)
                                         {
                                             <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete(@user.Id)" title="Delete">
                                                 <i class="bi bi-trash"></i> Delete
