@@ -6,33 +6,41 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
+<div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow">
-                <div class="card-header bg-warning">
-                    <h3 class="mb-0">Edit User</h3>
+        <div class="col-lg-10">
+            <div class="card shadow rounded">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Edit User</h4>
+                    <a asp-action="Index" asp-controller="User" class="btn btn-outline-white text-white btn-sm" title="Back to List">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit" asp-controller="User" method="post" enctype="multipart/form-data">
-                        <input type="hidden" asp-for="Id" />
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
+                    <form asp-action="Edit" asp-controller="User" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+
+                        @* Personal Details *@
+                        <h5 class="mb-3 text-primary">Personal Details</h5>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label asp-for="Name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                <input asp-for="Name" class="form-control" />
+                                <input asp-for="Name" class="form-control form-control-lg" placeholder="Enter full name" />
                                 <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label asp-for="DateOfBirth" class="form-label">Date of Birth <span class="text-danger">*</span></label>
-                                <input asp-for="DateOfBirth" type="date" class="form-control" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                <input asp-for="DateOfBirth" type="date" class="form-control form-control-lg" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="DateOfBirth" class="text-danger"></span>
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label d-block">Gender <span class="text-danger">*</span></label>
                             <div class="form-check form-check-inline">
                                 <input asp-for="Gender" type="radio" value="Male" class="form-check-input" id="genderMale" />
@@ -51,33 +59,34 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        @* Hobbies *@
+                        <div class="mb-4">
                             <label class="form-label">Hobbies</label>
-                            <div class="row">
+                            <div class="d-flex flex-wrap gap-2">
                                 @{
                                     var hobbies = new[] { "Reading", "Sports", "Music", "Travel", "Cooking", "Gaming" };
                                     foreach (var hobby in hobbies)
                                     {
                                         var isChecked = Model.Hobbies != null && Model.Hobbies.Contains(hobby);
-                                        <div class="col-md-3">
-                                            <div class="form-check">
-                                                <input type="checkbox" name="Hobbies" value="@hobby" class="form-check-input"
-                                                       id="hobby@hobby" checked="@isChecked" />
-                                                <label class="form-check-label" for="hobby@hobby">@hobby</label>
-                                            </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" name="Hobbies" value="@hobby" class="form-check-input" id="hobby@hobby" checked="@isChecked" />
+                                            <label class="form-check-label" for="hobby@hobby">@hobby</label>
                                         </div>
                                     }
                                 }
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        @* Address *@
+                        <div class="mb-4">
                             <label asp-for="Address" class="form-label">Address</label>
-                            <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                            <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter address"></textarea>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
-                        <div class="row">
+                        @* Location Details *@
+                        <h5 class="mb-3 text-primary">Location Details</h5>
+                        <div class="row mb-4">
                             <div class="col-md-4 mb-3">
                                 <label asp-for="StateId" class="form-label">State <span class="text-danger">*</span></label>
                                 <select asp-for="StateId" class="form-select" id="stateDropdown">
@@ -104,26 +113,26 @@
 
                             <div class="col-md-4 mb-3">
                                 <label asp-for="Pincode" class="form-label">Pincode <span class="text-danger">*</span></label>
-                                <input asp-for="Pincode" class="form-control" maxlength="6" />
+                                <input asp-for="Pincode" class="form-control" maxlength="6" placeholder="Enter pincode" />
                                 <span asp-validation-for="Pincode" class="text-danger"></span>
                             </div>
                         </div>
 
-                        <!-- Existing Documents -->
+                        @* Existing Documents *@
                         @if (Model.ExistingDocuments != null && Model.ExistingDocuments.Any())
                         {
-                            <div class="mb-3">
+                            <div class="mb-4">
                                 <label class="form-label">Existing Documents</label>
                                 <div class="list-group">
                                     @foreach (var doc in Model.ExistingDocuments)
                                     {
                                         <div class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <i class="bi bi-file-earmark"></i> @doc.FileName
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="bi bi-file-earmark-text fs-5"></i>
+                                                <span>@doc.FileName</span>
                                                 <small class="text-muted">(@((doc.FileSize / 1024.0).ToString("F2")) KB)</small>
-
                                             </div>
-                                            <div>
+                                            <div class="d-flex gap-2">
                                                 <a href="@Url.Action("DownloadDocument", "User", new { documentId = doc.Id })"
                                                    class="btn btn-sm btn-primary" title="Download">
                                                     <i class="bi bi-download"></i>
@@ -139,8 +148,8 @@
                             </div>
                         }
 
-                        <!-- Upload New Documents -->
-                        <div class="mb-3">
+                        @* Upload New Documents *@
+                        <div class="mb-4">
                             <label asp-for="NewDocuments" class="form-label">Upload New Documents</label>
                             <input asp-for="NewDocuments" type="file" class="form-control" multiple
                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
@@ -149,10 +158,10 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-warning">Update User</button>
-                            <a asp-action="Index" asp-controller="User" class="btn btn-secondary">Back to List</a>
+                            <button type="submit" class="btn btn-warning btn-lg">Update User</button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>

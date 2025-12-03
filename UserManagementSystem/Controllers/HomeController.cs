@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using UserManagementSystem.Models;
+using UserManagementSystem.Models.ViewModels;
 
 namespace UserManagementSystem.Controllers
 {

@@ -17,7 +17,18 @@ namespace UserManagementSystem.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            // Fix cascade delete issue
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.State)
+                .WithMany()
+                .HasForeignKey(u => u.StateId)
+                .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.City)
+                .WithMany()
+                .HasForeignKey(u => u.CityId)
+                .OnDelete(DeleteBehavior.Restrict);
             // Only seed data
             SeedData(modelBuilder);
         }

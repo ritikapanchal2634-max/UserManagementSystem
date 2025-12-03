@@ -2,186 +2,313 @@
 @model RegisterViewModel
 @{
     ViewData["Title"] = "Register";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
 }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">User Registration</h3>
+<div class="auth-header">
+    <h2>Create Account</h2>
+    <p>Join us today! Fill in the details below to get started</p>
+</div>
+
+<form asp-action="Register" asp-controller="Account" method="post" enctype="multipart/form-data" id="registrationForm">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <!-- Personal Information -->
+    <div class="border-bottom pb-2 mb-4">
+        <h6 class="text-primary fw-bold">
+            <i class="bi bi-person-badge me-2"></i>Personal Information
+        </h6>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Name" class="form-label fw-semibold">
+                Full Name <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light">
+                    <i class="bi bi-person"></i>
+                </span>
+                <input asp-for="Name" class="form-control" placeholder="Enter your full name" />
+            </div>
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="UserName" class="form-label fw-semibold">
+                Username <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light">
+                    <i class="bi bi-at"></i>
+                </span>
+                <input asp-for="UserName" class="form-control" id="UserName" placeholder="Choose a unique username" />
+            </div>
+            <span asp-validation-for="UserName" class="text-danger small"></span>
+            <small class="text-muted d-block mt-1">Username must be unique</small>
+        </div>
+    </div>
+
+    <!-- Security -->
+    <div class="border-bottom pb-2 mb-4 mt-4">
+        <h6 class="text-primary fw-bold">
+            <i class="bi bi-shield-lock me-2"></i>Security
+        </h6>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Password" class="form-label fw-semibold">
+                Password <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light">
+                    <i class="bi bi-lock"></i>
+                </span>
+                <input asp-for="Password" type="password" class="form-control" id="passwordInput" placeholder="Create a strong password" />
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('passwordInput', 'toggleIcon1')">
+                    <i class="bi bi-eye" id="toggleIcon1"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger small"></span>
+            <small class="text-muted d-block mt-1">Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char</small>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="ConfirmPassword" class="form-label fw-semibold">
+                Confirm Password <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light">
+                    <i class="bi bi-lock-fill"></i>
+                </span>
+                <input asp-for="ConfirmPassword" type="password" class="form-control" id="confirmPasswordInput" placeholder="Re-enter your password" />
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPasswordInput', 'toggleIcon2')">
+                    <i class="bi bi-eye" id="toggleIcon2"></i>
+                </button>
+            </div>
+            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <!-- Basic Details -->
+    <div class="border-bottom pb-2 mb-4 mt-4">
+        <h6 class="text-primary fw-bold">
+            <i class="bi bi-calendar-check me-2"></i>Basic Details
+        </h6>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="DateOfBirth" class="form-label fw-semibold">
+                Date of Birth <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light">
+                    <i class="bi bi-calendar-event"></i>
+                </span>
+                <input asp-for="DateOfBirth" type="date" class="form-control" id="DateOfBirth" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+            </div>
+            <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold d-block">
+                Gender <span class="text-danger">*</span>
+            </label>
+            <div class="btn-group w-100" role="group">
+                <input asp-for="Gender" type="radio" value="Male" class="btn-check" id="genderMale" autocomplete="off" />
+                <label class="btn btn-outline-primary" for="genderMale">
+                    <i class="bi bi-gender-male me-1"></i>Male
+                </label>
+
+                <input asp-for="Gender" type="radio" value="Female" class="btn-check" id="genderFemale" autocomplete="off" />
+                <label class="btn btn-outline-primary" for="genderFemale">
+                    <i class="bi bi-gender-female me-1"></i>Female
+                </label>
+
+                <input asp-for="Gender" type="radio" value="Other" class="btn-check" id="genderOther" autocomplete="off" />
+                <label class="btn btn-outline-primary" for="genderOther">
+                    <i class="bi bi-gender-ambiguous me-1"></i>Other
+                </label>
+            </div>
+            <span asp-validation-for="Gender" class="text-danger small d-block mt-1"></span>
+        </div>
+    </div>
+
+    <!-- Interests -->
+    <div class="border-bottom pb-2 mb-4 mt-4">
+        <h6 class="text-primary fw-bold">
+            <i class="bi bi-star me-2"></i>Interests & Hobbies
+        </h6>
+    </div>
+
+    <div class="mb-3">
+        <div class="row g-2">
+            <div class="col-6 col-md-4">
+                <div class="form-check border rounded p-3 h-100">
+                    <input type="checkbox" name="Hobbies" value="Reading" class="form-check-input" id="hobbyReading" />
+                    <label class="form-check-label w-100" for="hobbyReading">
+                        <i class="bi bi-book me-2"></i>Reading
+                    </label>
                 </div>
-                <div class="card-body">
-                    <form asp-action="Register" asp-controller="Account" method="post" enctype="multipart/form-data" id="registrationForm">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                        <div class="row">
-                            <!-- Name -->
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                <input asp-for="Name" class="form-control" placeholder="Enter full name" />
-                                <span asp-validation-for="Name" class="text-danger"></span>
-                            </div>
-
-                            <!-- Username -->
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="UserName" class="form-label">Username <span class="text-danger">*</span></label>
-                                <input asp-for="UserName" class="form-control" placeholder="Enter unique username" />
-                                <span asp-validation-for="UserName" class="text-danger"></span>
-                                <small class="form-text text-muted">Username must be unique</small>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <!-- Password -->
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
-                                <input asp-for="Password" type="password" class="form-control" placeholder="Enter strong password" />
-                                <span asp-validation-for="Password" class="text-danger"></span>
-                                <small class="form-text text-muted">Min 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 special char</small>
-                            </div>
-
-                            <!-- Confirm Password -->
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ConfirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Re-enter password" />
-                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <!-- Date of Birth -->
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="DateOfBirth" class="form-label">Date of Birth <span class="text-danger">*</span></label>
-                                <input asp-for="DateOfBirth" type="date" class="form-control" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
-                                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-                            </div>
-
-                            <!-- Gender -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label d-block">Gender <span class="text-danger">*</span></label>
-                                <div class="form-check form-check-inline">
-                                    <input asp-for="Gender" type="radio" value="Male" class="form-check-input" id="genderMale" />
-                                    <label class="form-check-label" for="genderMale">Male</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input asp-for="Gender" type="radio" value="Female" class="form-check-input" id="genderFemale" />
-                                    <label class="form-check-label" for="genderFemale">Female</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input asp-for="Gender" type="radio" value="Other" class="form-check-input" id="genderOther" />
-                                    <label class="form-check-label" for="genderOther">Other</label>
-                                </div>
-                                <div>
-                                    <span asp-validation-for="Gender" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Hobbies -->
-                        <div class="mb-3">
-                            <label class="form-label">Hobbies</label>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" name="Hobbies" value="Reading" class="form-check-input" id="hobbyReading" />
-                                        <label class="form-check-label" for="hobbyReading">Reading</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" name="Hobbies" value="Sports" class="form-check-input" id="hobbySports" />
-                                        <label class="form-check-label" for="hobbySports">Sports</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" name="Hobbies" value="Music" class="form-check-input" id="hobbyMusic" />
-                                        <label class="form-check-label" for="hobbyMusic">Music</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" name="Hobbies" value="Travel" class="form-check-input" id="hobbyTravel" />
-                                        <label class="form-check-label" for="hobbyTravel">Travel</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" name="Hobbies" value="Cooking" class="form-check-input" id="hobbyCooking" />
-                                        <label class="form-check-label" for="hobbyCooking">Cooking</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" name="Hobbies" value="Gaming" class="form-check-input" id="hobbyGaming" />
-                                        <label class="form-check-label" for="hobbyGaming">Gaming</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Address -->
-                        <div class="mb-3">
-                            <label asp-for="Address" class="form-label">Address</label>
-                            <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter full address"></textarea>
-                            <span asp-validation-for="Address" class="text-danger"></span>
-                        </div>
-
-                        <div class="row">
-                            <!-- State -->
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="StateId" class="form-label">State <span class="text-danger">*</span></label>
-                                <select asp-for="StateId" class="form-select" id="stateDropdown">
-                                    <option value="">Select State</option>
-                                    @foreach (var state in ViewBag.States)
-                                    {
-                                        <option value="@state.Id">@state.Name</option>
-                                    }
-                                </select>
-                                <span asp-validation-for="StateId" class="text-danger"></span>
-                            </div>
-
-                            <!-- City -->
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="CityId" class="form-label">City <span class="text-danger">*</span></label>
-                                <select asp-for="CityId" class="form-select" id="cityDropdown" disabled>
-                                    <option value="">Select City</option>
-                                </select>
-                                <span asp-validation-for="CityId" class="text-danger"></span>
-                            </div>
-
-                            <!-- Pincode -->
-                            <div class="col-md-4 mb-3">
-                                <label asp-for="Pincode" class="form-label">Pincode <span class="text-danger">*</span></label>
-                                <input asp-for="Pincode" class="form-control" placeholder="Enter 6-digit pincode" maxlength="6" />
-                                <span asp-validation-for="Pincode" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <!-- File Upload -->
-                        <div class="mb-3">
-                            <label asp-for="Documents" class="form-label">Upload Documents</label>
-                            <input asp-for="Documents" type="file" class="form-control" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
-                            <span asp-validation-for="Documents" class="text-danger"></span>
-                            <small class="form-text text-muted">Allowed: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">Register</button>
-                            <a asp-action="Login" asp-controller="Account" class="btn btn-secondary">Back to Login</a>
-                        </div>
-                    </form>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="form-check border rounded p-3 h-100">
+                    <input type="checkbox" name="Hobbies" value="Sports" class="form-check-input" id="hobbySports" />
+                    <label class="form-check-label w-100" for="hobbySports">
+                        <i class="bi bi-trophy me-2"></i>Sports
+                    </label>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="form-check border rounded p-3 h-100">
+                    <input type="checkbox" name="Hobbies" value="Music" class="form-check-input" id="hobbyMusic" />
+                    <label class="form-check-label w-100" for="hobbyMusic">
+                        <i class="bi bi-music-note me-2"></i>Music
+                    </label>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="form-check border rounded p-3 h-100">
+                    <input type="checkbox" name="Hobbies" value="Travel" class="form-check-input" id="hobbyTravel" />
+                    <label class="form-check-label w-100" for="hobbyTravel">
+                        <i class="bi bi-airplane me-2"></i>Travel
+                    </label>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="form-check border rounded p-3 h-100">
+                    <input type="checkbox" name="Hobbies" value="Cooking" class="form-check-input" id="hobbyCooking" />
+                    <label class="form-check-label w-100" for="hobbyCooking">
+                        <i class="bi bi-egg-fried me-2"></i>Cooking
+                    </label>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="form-check border rounded p-3 h-100">
+                    <input type="checkbox" name="Hobbies" value="Gaming" class="form-check-input" id="hobbyGaming" />
+                    <label class="form-check-label w-100" for="hobbyGaming">
+                        <i class="bi bi-controller me-2"></i>Gaming
+                    </label>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Location -->
+    <div class="border-bottom pb-2 mb-4 mt-4">
+        <h6 class="text-primary fw-bold">
+            <i class="bi bi-geo-alt me-2"></i>Location Details
+        </h6>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Address" class="form-label fw-semibold">Address</label>
+        <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter your full address"></textarea>
+        <span asp-validation-for="Address" class="text-danger small"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="StateId" class="form-label fw-semibold">
+                State <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light">
+                    <i class="bi bi-map"></i>
+                </span>
+                <select asp-for="StateId" class="form-select" id="stateDropdown">
+                    <option value="">Select State</option>
+                    @foreach (var state in ViewBag.States)
+                    {
+                        <option value="@state.Id">@state.Name</option>
+                    }
+                </select>
+            </div>
+            <span asp-validation-for="StateId" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label asp-for="CityId" class="form-label fw-semibold">
+                City <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light">
+                    <i class="bi bi-building"></i>
+                </span>
+                <select asp-for="CityId" class="form-select" id="cityDropdown" disabled>
+                    <option value="">Select City</option>
+                </select>
+            </div>
+            <span asp-validation-for="CityId" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label asp-for="Pincode" class="form-label fw-semibold">
+                Pincode <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light">
+                    <i class="bi bi-mailbox"></i>
+                </span>
+                <input asp-for="Pincode" class="form-control" placeholder="6-digit pincode" maxlength="6" />
+            </div>
+            <span asp-validation-for="Pincode" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="border-bottom pb-2 mb-4 mt-4">
+        <h6 class="text-primary fw-bold">
+            <i class="bi bi-file-earmark-arrow-up me-2"></i>Upload Documents
+        </h6>
+    </div>
+
+    <div class="mb-4">
+        <div class="border rounded p-4 text-center bg-light">
+            <i class="bi bi-cloud-arrow-up fs-1 text-primary mb-3 d-block"></i>
+            <p class="mb-2 fw-semibold">Choose files to upload</p>
+            <input asp-for="Documents" type="file" class="form-control" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+            <small class="text-muted d-block mt-2">Allowed: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)</small>
+        </div>
+        <span asp-validation-for="Documents" class="text-danger small"></span>
+    </div>
+
+    <!-- Submit Buttons -->
+    <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-check-circle me-2"></i>Create Account
+        </button>
+        <a asp-action="Login" asp-controller="Account" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Login
+        </a>
+    </div>
+</form>
+
+<div class="auth-footer mt-4">
+    <p>Already have an account? <a asp-action="Login" asp-controller="Account">Login here</a></p>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+
         $(document).ready(function () {
             // Cascading dropdown for City based on State
             $('#stateDropdown').change(function () {
@@ -218,14 +345,20 @@
                         type: 'GET',
                         data: { username: username },
                         success: function (isAvailable) {
+                            var usernameField = $('#UserName');
+                            var inputGroup = usernameField.closest('.input-group');
+                            var validationSpan = inputGroup.next('.text-danger');
+
                             if (!isAvailable) {
-                                $('#UserName').addClass('is-invalid');
-                                if ($('#UserName').next('.text-danger').length === 0) {
-                                    $('#UserName').after('<span class="text-danger">Username already exists</span>');
+                                usernameField.addClass('is-invalid');
+                                if (validationSpan.length === 0) {
+                                    inputGroup.after('<span class="text-danger small">Username already exists</span>');
+                                } else {
+                                    validationSpan.text('Username already exists');
                                 }
                             } else {
-                                $('#UserName').removeClass('is-invalid');
-                                $('#UserName').next('.text-danger').remove();
+                                usernameField.removeClass('is-invalid');
+                                validationSpan.remove();
                             }
                         }
                     });
@@ -234,6 +367,15 @@
 
             // Date validation
             $('#DateOfBirth').attr('max', new Date().toISOString().split('T')[0]);
+
+            // File upload feedback
+            $('input[type="file"]').change(function() {
+                var fileCount = this.files.length;
+                if (fileCount > 0) {
+                    var message = fileCount === 1 ? '1 file selected' : fileCount + ' files selected';
+                    $(this).next('.text-muted').text(message);
+                }
+            });
         });
     </script>
 }

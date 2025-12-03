@@ -91,6 +91,22 @@ namespace UserManagementSystem.Controllers
                     return View(model);
                 }
 
+                // Get existing documents from database
+                var user = await _userService.GetUserByIdAsync(model.Id);
+                if (user != null)
+                {
+                    // Convert existing documents to view model
+                    model.ExistingDocuments = user.Documents?.Select(d => new UserDocumentViewModel
+                    {
+                        Id = d.Id,
+                        FileName = d.FileName,
+                        FilePath = d.FilePath,
+                        FileType = d.FileType,
+                        FileSize = d.FileSize,
+                        UploadedDate = d.UploadedDate
+                    }).ToList();
+                }
+
                 // Upload new files if any
                 List<string> filePaths = null;
                 if (model.NewDocuments != null && model.NewDocuments.Any())
@@ -109,13 +125,13 @@ namespace UserManagementSystem.Controllers
                 var result = await _userService.UpdateUserAsync(model, filePaths);
                 if (result)
                 {
-                    TempData["SuccessMessage"] = "User updated successfully";
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { message = "User updated successfully", type = "success" });
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "Failed to update user";
+                    return RedirectToAction("Index", new { message = "Failed to update user", type = "error" });
                 }
+
             }
 
             ViewBag.States = await _userService.GetStatesAsync();

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations;
 
 namespace UserManagementSystem.Models.ViewModels
 {
@@ -32,6 +33,6 @@ namespace UserManagementSystem.Models.ViewModels
         public string Pincode { get; set; }
 
         public List<IFormFile> NewDocuments { get; set; }
-        public List<UserDocumentViewModel> ExistingDocuments { get; set; }
+        public List<UserDocumentViewModel>? ExistingDocuments { get; set; }
     }
 }
