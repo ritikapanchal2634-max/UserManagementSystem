@@ -16,25 +16,8 @@ namespace UserManagementSystem.Services
             _context = context;
         }
 
-        public async Task<User> RegisterAsync(RegisterViewModel model, List<string> documentPaths)
+        public async Task<User> RegisterAsync(User user, List<string> documentPaths)
         {
-            var user = new User
-            {
-                Name = model.Name,
-                UserName = model.UserName,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                DateOfBirth = model.DateOfBirth,
-                Gender = model.Gender,
-                Hobbies = model.Hobbies != null ? string.Join(",", model.Hobbies) : "",
-                Address = model.Address,
-                StateId = model.StateId,
-                CityId = model.CityId,
-                Pincode = model.Pincode,
-                Role = "User", // Default role
-                CreatedDate = DateTime.UtcNow,
-                IsActive = true
-            };
-
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
@@ -58,10 +41,8 @@ namespace UserManagementSystem.Services
 
                     _context.UserDocuments.Add(document);
                 }
-
                 await _context.SaveChangesAsync();
             }
-
             return user;
         }
 
@@ -75,7 +56,7 @@ namespace UserManagementSystem.Services
             if (user == null)
                 return null;
 
-            var hash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
+          //  var hash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
 
             if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
                 return null;
@@ -132,7 +113,16 @@ namespace UserManagementSystem.Services
                     State = u.State.Name,
                     City = u.City.Name,
                     CreatedDate = u.CreatedDate,
-                    IsActive = u.IsActive
+                    IsActive = u.IsActive,
+                    Documents = u.Documents.Select(d => new UserDocumentViewModel
+                    {
+                        Id = d.Id,
+                        FileName = d.FileName,
+                        FilePath = d.FilePath,
+                        FileType = d.FileType,
+                        FileSize = d.FileSize,
+                        UploadedDate = d.UploadedDate
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -158,44 +148,29 @@ namespace UserManagementSystem.Services
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<bool> UpdateUserAsync(EditUserViewModel model, List<string> newDocumentPaths)
+        public async Task<bool> UpdateUserAsync(User user, List<string> newDocumentPaths)
         {
-            var user = await _context.Users.FindAsync(model.Id);
-            if (user == null)
-                return false;
-
-            user.Name = model.Name;
-            user.DateOfBirth = model.DateOfBirth;
-            user.Gender = model.Gender;
-            user.Hobbies = model.Hobbies != null ? string.Join(",", model.Hobbies) : "";
-            user.Address = model.Address;
-            user.StateId = model.StateId;
-            user.CityId = model.CityId;
-            user.Pincode = model.Pincode;
-            user.ModifiedDate = DateTime.UtcNow;
+            if (user == null) return false;
 
             // Add new documents
             if (newDocumentPaths != null && newDocumentPaths.Any())
             {
                 foreach (var path in newDocumentPaths)
                 {
-                    var fileName = System.IO.Path.GetFileName(path);
                     var fileInfo = new System.IO.FileInfo(path);
-
-                    var document = new UserDocument
+                    _context.UserDocuments.Add(new UserDocument
                     {
                         UserId = user.Id,
-                        FileName = fileName,
+                        FileName = fileInfo.Name,
                         FilePath = path,
                         FileType = fileInfo.Extension,
                         FileSize = fileInfo.Length,
                         UploadedDate = DateTime.UtcNow
-                    };
-
-                    _context.UserDocuments.Add(document);
+                    });
                 }
             }
 
+            user.ModifiedDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return true;
         }

@@ -47,7 +47,6 @@ namespace UserManagementSystem.Models.ViewModels
         [StringLength(10)]
         [RegularExpression(@"^\d{6}$", ErrorMessage = "Pincode must be 6 digits")]
         public string Pincode { get; set; }
-
         public List<IFormFile> Documents { get; set; }
     }
 }

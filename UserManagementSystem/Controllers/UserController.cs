@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserManagementSystem.Data;
 using UserManagementSystem.IServices;
@@ -12,12 +13,14 @@ namespace UserManagementSystem.Controllers
         private readonly IUserService _userService;
         private readonly IFileUploadService _fileUploadService;
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public UserController(IUserService userService, IFileUploadService fileUploadService, ApplicationDbContext context)
+        public UserController(IUserService userService, IFileUploadService fileUploadService, ApplicationDbContext context, IMapper mapper)
         {
             _userService = userService;
             _fileUploadService = fileUploadService;
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -33,7 +36,6 @@ namespace UserManagementSystem.Controllers
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
             {
-                TempData["ErrorMessage"] = "User not found";
                 return RedirectToAction("Index");
             }
 
@@ -47,27 +49,9 @@ namespace UserManagementSystem.Controllers
                 return RedirectToAction("Index");
             }
 
-            var model = new EditUserViewModel
-            {
-                Id = user.Id,
-                Name = user.Name,
-                DateOfBirth = user.DateOfBirth,
-                Gender = user.Gender,
-                Hobbies = user.Hobbies?.Split(',').ToList(),
-                Address = user.Address,
-                StateId = user.StateId,
-                CityId = user.CityId,
-                Pincode = user.Pincode,
-                ExistingDocuments = user.Documents?.Select(d => new UserDocumentViewModel
-                {
-                    Id = d.Id,
-                    FileName = d.FileName,
-                    FilePath = d.FilePath,
-                    FileType = d.FileType,
-                    FileSize = d.FileSize,
-                    UploadedDate = d.UploadedDate
-                }).ToList()
-            };
+            var model = _mapper.Map<EditUserViewModel>(user);
+            // Map existing documents
+            model.ExistingDocuments = user.Documents?.Select(d => _mapper.Map<UserDocumentViewModel>(d)).ToList();
 
             ViewBag.States = await _userService.GetStatesAsync();
             ViewBag.Cities = await _userService.GetCitiesByStateAsync(user.StateId);
@@ -79,63 +63,41 @@ namespace UserManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditUserViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid || model.DateOfBirth >= DateTime.Now.Date)
             {
-                // Server-side validation for date of birth
                 if (model.DateOfBirth >= DateTime.Now.Date)
-                {
                     ModelState.AddModelError("DateOfBirth", "Date of birth cannot be today or in the future");
+
+                ViewBag.States = await _userService.GetStatesAsync();
+                ViewBag.Cities = await _userService.GetCitiesByStateAsync(model.StateId);
+                return View(model);
+            }
+
+            var user = await _userService.GetUserByIdAsync(model.Id);
+            if (user == null) return RedirectToAction("Index");
+
+            _mapper.Map(model, user);
+
+            List<string> filePaths = null;
+            if (model.NewDocuments != null && model.NewDocuments.Any())
+            {
+                var (success, paths, errorMessage) = await _fileUploadService.UploadFilesAsync(model.NewDocuments);
+                if (!success)
+                {
+                    ModelState.AddModelError("NewDocuments", errorMessage);
                     ViewBag.States = await _userService.GetStatesAsync();
                     ViewBag.Cities = await _userService.GetCitiesByStateAsync(model.StateId);
                     return View(model);
                 }
-
-                // Get existing documents from database
-                var user = await _userService.GetUserByIdAsync(model.Id);
-                if (user != null)
-                {
-                    // Convert existing documents to view model
-                    model.ExistingDocuments = user.Documents?.Select(d => new UserDocumentViewModel
-                    {
-                        Id = d.Id,
-                        FileName = d.FileName,
-                        FilePath = d.FilePath,
-                        FileType = d.FileType,
-                        FileSize = d.FileSize,
-                        UploadedDate = d.UploadedDate
-                    }).ToList();
-                }
-
-                // Upload new files if any
-                List<string> filePaths = null;
-                if (model.NewDocuments != null && model.NewDocuments.Any())
-                {
-                    var (success, paths, errorMessage) = await _fileUploadService.UploadFilesAsync(model.NewDocuments);
-                    if (!success)
-                    {
-                        ModelState.AddModelError("NewDocuments", errorMessage);
-                        ViewBag.States = await _userService.GetStatesAsync();
-                        ViewBag.Cities = await _userService.GetCitiesByStateAsync(model.StateId);
-                        return View(model);
-                    }
-                    filePaths = paths;
-                }
-
-                var result = await _userService.UpdateUserAsync(model, filePaths);
-                if (result)
-                {
-                    return RedirectToAction("Index", new { message = "User updated successfully", type = "success" });
-                }
-                else
-                {
-                    return RedirectToAction("Index", new { message = "Failed to update user", type = "error" });
-                }
-
+                filePaths = paths;
+            }
+            var result = await _userService.UpdateUserAsync(user, filePaths);
+            if (result)
+            {
+                return RedirectToAction("Index", new { message = "User updated successfully", type = "success" });
             }
 
-            ViewBag.States = await _userService.GetStatesAsync();
-            ViewBag.Cities = await _userService.GetCitiesByStateAsync(model.StateId);
-            return View(model);
+            return RedirectToAction("Index", new { message = "Failed to update user", type = "error" });
         }
 
         [HttpPost]
@@ -180,8 +142,6 @@ namespace UserManagementSystem.Controllers
 
             // Delete file from file system
             _fileUploadService.DeleteFile(document.FilePath);
-
-            // Delete from database
             _context.UserDocuments.Remove(document);
             await _context.SaveChangesAsync();
 

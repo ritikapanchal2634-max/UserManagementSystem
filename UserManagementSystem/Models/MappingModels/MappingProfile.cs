@@ -8,23 +8,39 @@ namespace UserManagementSystem.Models.MappingModels
     {
         public MappingProfile()
         {
-            // User -> RegisterViewModel
-            CreateMap<User, RegisterViewModel>();
-
-            // RegisterViewModel -> User
+            // RegisterViewModel → User
             CreateMap<RegisterViewModel, User>()
                 .ForMember(dest => dest.Hobbies,
-                           opt => opt.MapFrom(src => string.Join(",", src.Hobbies ?? new List<string>())));
+                    opt => opt.ConvertUsing(new ListToStringConverter(), src => src.Hobbies)).ForMember(dest => dest.Documents, opt => opt.Ignore());
 
-            // User -> EditUserViewModel
-        /*    CreateMap<User, EditUserViewModel>()
+            // User → EditUserViewModel
+            CreateMap<User, EditUserViewModel>()
                 .ForMember(dest => dest.Hobbies,
-                           opt => opt.MapFrom(src => src.Hobbies != null ? src.Hobbies.Split(',').ToList() : new List<string>()));*/
+                    opt => opt.ConvertUsing(new StringToListConverter(), src => src.Hobbies));
 
-            // EditUserViewModel -> User
+            // EditUserViewModel → User
             CreateMap<EditUserViewModel, User>()
                 .ForMember(dest => dest.Hobbies,
-                           opt => opt.MapFrom(src => string.Join(",", src.Hobbies ?? new List<string>())));
+                    opt => opt.ConvertUsing(new ListToStringConverter(), src => src.Hobbies));
+
+            CreateMap<UserDocument, UserDocumentViewModel>();
+        }
+    }
+
+    public class ListToStringConverter : IValueConverter<List<string>, string>
+    {
+        public string Convert(List<string> source, ResolutionContext context)
+        {
+            return source == null ? "" : string.Join(",", source);
+        }
+    }
+    public class StringToListConverter : IValueConverter<string, List<string>>
+    {
+        public List<string> Convert(string source, ResolutionContext context)
+        {
+            return string.IsNullOrEmpty(source)
+                ? new List<string>()
+                : source.Split(',').ToList();
         }
     }
 }

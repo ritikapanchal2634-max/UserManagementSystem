@@ -113,6 +113,7 @@
                                     }
                                 </a>
                             </th>
+                            <th>Documents</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -131,8 +132,42 @@
                                     <td>@user.City</td>
                                     <td>@user.CreatedDate.ToString("MM/dd/yyyy")</td>
                                     <td>
-                                        <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning me-1" title="Edit">
-                                            <i class="bi bi-pencil"></i> Edit
+                                        @if (user.Documents != null && user.Documents.Any())
+                                        {
+                                            if (user.Documents.Count == 1)
+                                            {
+                                                var doc = user.Documents.First();
+                                                <a href="@Url.Action("DownloadDocument", "User", new { documentId = doc.Id })"
+                                                   target="_blank" class="text-primary" title="View Document">
+                                                 View
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-link text-primary dropdown-toggle" type="button" id="docDropdown@user.Id" data-bs-toggle="dropdown" aria-expanded="false">
+                                                         View
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="docDropdown@user.Id">
+                                                        @foreach (var doc in user.Documents)
+                                                        {
+                                                            <a class="dropdown-item" href="@Url.Action("DownloadDocument", "User", new { documentId = doc.Id })" target="_blank">
+                                                                @doc.FileName
+                                                            </a>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No documents</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-primary me-1" title="Edit">
+                                            <i class="bi bi-pencil"></i> 
                                         </a>
                                         @if (currentUserRole == "Admin" && user.UserName != currentUserName)
                                         {

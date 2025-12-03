@@ -11,5 +11,8 @@
         public string City { get; set; }
         public DateTime CreatedDate { get; set; }
         public bool IsActive { get; set; }
+
+        // Add this to store uploaded documents
+        public List<UserDocumentViewModel> Documents { get; set; } = new();
     }
 }

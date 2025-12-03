@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserManagementSystem.IServices;
+using UserManagementSystem.Models.Entities;
 using UserManagementSystem.Models.ViewModels;
 using UserManagementSystem.Services;
 
@@ -11,12 +13,14 @@ namespace UserManagementSystem.Controllers
         private readonly IUserService _userService;
         private readonly IJwtService _jwtService;
         private readonly IFileUploadService _fileUploadService;
+        private readonly IMapper _mapper;
 
-        public AccountController(IUserService userService, IJwtService jwtService, IFileUploadService fileUploadService)
+        public AccountController(IUserService userService, IJwtService jwtService, IFileUploadService fileUploadService, IMapper mapper)
         {
             _userService = userService;
             _jwtService = jwtService;
             _fileUploadService = fileUploadService;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -54,6 +58,13 @@ namespace UserManagementSystem.Controllers
                 return View(model);
             }
 
+            var user = _mapper.Map<User>(model);
+            // **Set required fields**
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
+            user.Role = "User";             // <-- FIX: Set default role
+            user.CreatedDate = DateTime.UtcNow;
+            user.IsActive = true;
+
             // Upload documents
             var (success, filePaths, errorMessage) = await _fileUploadService.UploadFilesAsync(model.Documents);
             if (!success)
@@ -62,8 +73,7 @@ namespace UserManagementSystem.Controllers
                 return View(model);
             }
 
-            // Register user (password will be hashed inside UserService.RegisterAsync)
-            var user = await _userService.RegisterAsync(model, filePaths);
+            await _userService.RegisterAsync(user, filePaths);
 
             TempData["SuccessMessage"] = "Registration successful! Please login.";
             return RedirectToAction("Login");
