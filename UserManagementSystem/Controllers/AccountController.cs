@@ -61,7 +61,7 @@ namespace UserManagementSystem.Controllers
             var user = _mapper.Map<User>(model);
             // **Set required fields**
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
-            user.Role = "User";             // <-- FIX: Set default role
+            user.Role = "User";            
             user.CreatedDate = DateTime.UtcNow;
             user.IsActive = true;
 

@@ -45,35 +45,5 @@ namespace UserManagementSystem.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-        public ClaimsPrincipal ValidateToken(string token)
-        {
-            var secretKey = _configuration["JwtSettings:SecretKey"];
-            var issuer = _configuration["JwtSettings:Issuer"];
-            var audience = _configuration["JwtSettings:Audience"];
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-                ValidateIssuer = true,
-                ValidIssuer = issuer,
-                ValidateAudience = true,
-                ValidAudience = audience,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
-
-            try
-            {
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-                return principal;
-            }
-            catch
-            {
-                return null;
-            }
-        }
     }
 }

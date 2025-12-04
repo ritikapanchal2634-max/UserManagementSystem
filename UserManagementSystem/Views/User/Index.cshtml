@@ -172,7 +172,7 @@
                                         @if (currentUserRole == "Admin" && user.UserName != currentUserName)
                                         {
                                             <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete(@user.Id)" title="Delete">
-                                                <i class="bi bi-trash"></i> Delete
+                                                <i class="bi bi-trash"></i> 
                                             </button>
                                         }
                                     </td>
@@ -249,19 +249,5 @@
             $('#deleteUserId').val(userId);
             $('#deleteModal').modal('show');
         }
-
-        $(document).ready(function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const message = urlParams.get('message');
-            const type = urlParams.get('type');
-
-            if (message) {
-                if (type === 'success') {
-                    alert(message);
-                } else {
-                    alert(message);
-                }
-            }
-        });
     </script>
 }

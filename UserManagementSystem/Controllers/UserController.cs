@@ -94,10 +94,10 @@ namespace UserManagementSystem.Controllers
             var result = await _userService.UpdateUserAsync(user, filePaths);
             if (result)
             {
-                return RedirectToAction("Index", new { message = "User updated successfully", type = "success" });
+                return RedirectToAction("Index");
             }
 
-            return RedirectToAction("Index", new { message = "Failed to update user", type = "error" });
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
